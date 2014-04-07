@@ -27,7 +27,7 @@
 #include "expression.h"
 #include "module.h"
 
-#define LOG 1
+#define LOG 0 
 
 /* Code to do access checks
  */
