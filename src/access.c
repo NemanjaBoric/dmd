@@ -381,7 +381,7 @@ bool hasPrivateAccess(AggregateDeclaration *ad, Dsymbol *smember)
         }
     }
 #if LOG
-    printf("\t%s no\n", ad->toChars());
+    printf("\tno\n");
 #endif
     return false;
 }
