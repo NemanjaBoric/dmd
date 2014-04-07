@@ -365,7 +365,7 @@ bool hasPrivateAccess(AggregateDeclaration *ad, Dsymbol *smember)
             else
                 break;
         }
-        if (!cd && ad->toParent() == smember->toParent())
+        if (!cd && ad->toParent() == smember->toParent() && !(smember->storage_class & STCsynchronized))
         {
 #if LOG
             printf("\tyes 2\n");
