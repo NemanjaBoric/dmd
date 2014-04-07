@@ -27,7 +27,7 @@
 #include "expression.h"
 #include "module.h"
 
-#define LOG 0
+#define LOG 1
 
 /* Code to do access checks
  */
@@ -201,7 +201,7 @@ void accessCheck(AggregateDeclaration *ad, Loc loc, Scope *sc, Dsymbol *smember)
                 hasPrivateAccess(ad, f) ||
                 isFriendOf(ad, cdscope) ||
                 (access2 == PROTpackage && hasPackageAccess(sc, ad)) ||
-                ad->getAccessModule() == sc->module;
+                (ad->getAccessModule() == sc->module && !(ad->storage_class & STCsynchronized));
 #if LOG
         printf("result1 = %d\n", result);
 #endif
@@ -247,7 +247,7 @@ bool isFriendOf(AggregateDeclaration *ad, AggregateDeclaration *cd)
 
     // Friends if both are in the same module
     //if (toParent() == cd->toParent())
-    if (cd && ad->getAccessModule() == cd->getAccessModule())
+    if (cd && ad->getAccessModule() == cd->getAccessModule() && !(ad->storage_class & STCsynchronized))
     {
 #if LOG
         printf("\tin same module\n");
@@ -355,7 +355,7 @@ bool hasPrivateAccess(AggregateDeclaration *ad, Dsymbol *smember)
 #endif
             return true;           // so we get private access
         }
-
+        
         // If both are members of the same module, grant access
         while (1)
         {
@@ -365,14 +365,14 @@ bool hasPrivateAccess(AggregateDeclaration *ad, Dsymbol *smember)
             else
                 break;
         }
-        if (!cd && ad->toParent() == smember->toParent() && !(smember->storage_class & STCsynchronized))
+        if (!cd && ad->toParent() == smember->toParent() && (ad->storage_class & STCsynchronized) == 0)
         {
 #if LOG
             printf("\tyes 2\n");
 #endif
             return true;
         }
-        if (!cd && ad->getAccessModule() == smember->getAccessModule())
+        if (!cd && ad->getAccessModule() == smember->getAccessModule() && !(ad->storage_class & STCsynchronized) == 0)
         {
 #if LOG
             printf("\tyes 3\n");
@@ -381,7 +381,7 @@ bool hasPrivateAccess(AggregateDeclaration *ad, Dsymbol *smember)
         }
     }
 #if LOG
-    printf("\tno\n");
+    printf("\t%s no\n", ad->toChars());
 #endif
     return false;
 }
